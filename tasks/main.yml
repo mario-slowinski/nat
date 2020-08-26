@@ -1,13 +1,11 @@
-- name: "Move private interface to internal zone"
+- name: "Move internal interface to internal zone"
   tags: firewall
   firewalld:
     permanent: yes
     immediate: yes
     state: enabled
-    interface: "{{ item }}"
+    interface: "{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }}"
     zone: internal
-  when: ansible_facts[item]['ipv4']['address'] == internal
-  loop: "{{ ansible_interfaces }}"
 
 - name: "Allow NAT on public interface"
   tags: firewall
@@ -26,6 +24,4 @@
 
 - name: "Disable default routing for internal interface"
   tags: config
-  command: "nmcli c mod {{ item }} ipv4.never-default yes"
-  when: ansible_facts[item]['ipv4']['address'] == internal
-  loop: "{{ ansible_interfaces }}"
+  command: "nmcli c mod {{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }} ipv4.never-default yes"
