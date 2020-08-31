@@ -1,3 +1,12 @@
+- name: "Remove internal interface from public zone"
+  tags: firewall
+  firewalld:
+    permanent: yes
+    immediate: yes
+    state: disabled
+    interface: "{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }}"
+    zone: public
+
 - name: "Move internal interface to internal zone"
   tags: firewall
   firewalld:
