@@ -1,0 +1,27 @@
+- name: "Remove internal interface from public zone"
+  tags: nat-firewall-public
+  firewalld:
+    permanent: yes
+    immediate: yes
+    state: disabled
+    interface: "{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }}"
+    zone: public
+
+- name: "Move internal interface to internal zone"
+  tags: nat-firewall-internal
+  firewalld:
+    permanent: yes
+    immediate: yes
+    state: enabled
+    interface: "{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }}"
+    zone: internal
+
+- name: "Allow masquerade on public interface"
+  tags: nat-firewall-masquerade
+  firewalld:
+    permanent: yes
+    immediate: yes
+    state: enabled
+    zone: public
+    masquerade: "yes"
+
