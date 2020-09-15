@@ -1,36 +1,8 @@
-- name: "Remove internal interface from public zone"
-  tags: firewall
-  firewalld:
-    permanent: yes
-    immediate: yes
-    state: disabled
-    interface: "{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }}"
-    zone: public
+- name: "Configure firewall"
+  tags: nat-firewall
+  include_tasks: firewall.yml
 
-- name: "Move internal interface to internal zone"
-  tags: firewall
-  firewalld:
-    permanent: yes
-    immediate: yes
-    state: enabled
-    interface: "{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }}"
-    zone: internal
+- name: "Configure ip forwarding"
+  tags: nat-config
+  include_tasks: config.yml
 
-- name: "Allow NAT on public interface"
-  tags: firewall
-  firewalld:
-    permanent: yes
-    immediate: yes
-    state: enabled
-    zone: public
-    masquerade: "yes"
-
-- name: "Allow ip forwarding"
-  tags: config
-  sysctl:
-    name: net.ipv4.ip_forward
-    value: '1'
-
-- name: "Disable default routing for internal interface"
-  tags: config
-  command: "nmcli c mod {{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }} ipv4.never-default yes"
