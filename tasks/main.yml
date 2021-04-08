@@ -2,11 +2,11 @@
   tags:
   - nat
   - nat-firewall
-  include_tasks: firewall.yml
+  import_tasks: firewall.yml
 
 - name: "Configure ip forwarding"
   tags:
   - nat
   - nat-config
-  include_tasks: config.yml
+  import_tasks: config.yml
 
