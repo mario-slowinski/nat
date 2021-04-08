@@ -1,8 +1,12 @@
 - name: "Configure firewall"
-  tags: nat-firewall
+  tags:
+  - nat
+  - nat-firewall
   include_tasks: firewall.yml
 
 - name: "Configure ip forwarding"
-  tags: nat-config
+  tags:
+  - nat
+  - nat-config
   include_tasks: config.yml
 
