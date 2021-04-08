@@ -1,6 +1,6 @@
 - name: "Remove internal interface from public zone"
   tags: nat-firewall-public
-  firewalld:
+  ansible.posix.firewalld:
     permanent: yes
     immediate: yes
     state: disabled
@@ -9,7 +9,7 @@
 
 - name: "Move internal interface to internal zone"
   tags: nat-firewall-internal
-  firewalld:
+  ansible.posix.firewalld:
     permanent: yes
     immediate: yes
     state: enabled
@@ -18,7 +18,7 @@
 
 - name: "Allow masquerade on public interface"
   tags: nat-firewall-masquerade
-  firewalld:
+  ansible.posix.firewalld:
     permanent: yes
     immediate: yes
     state: enabled
