@@ -1,10 +1,12 @@
 - name: "Allow ip forwarding"
-  tags: nat-config-forwarding
+  tags: nat-routing-forwarding
   sysctl:
     name: net.ipv4.ip_forward
     value: '1'
 
 - name: "Disable default routing for internal interface"
-  tags: nat-config-internal
-  command: "nmcli c mod {{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }} ipv4.never-default yes"
+  tags: nat-routing-internal
+  ansible.builtin.lineinfile:
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }}"
+    line: "DEFROUTE=no"
 

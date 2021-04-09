@@ -7,6 +7,6 @@
 - name: "Configure ip forwarding"
   tags:
   - nat
-  - nat-config
-  import_tasks: config.yml
+  - nat-routing
+  import_tasks: routing.yml
 
