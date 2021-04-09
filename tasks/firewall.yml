@@ -1,20 +1,14 @@
-- name: "Remove internal interface from public zone"
+- name: "Move public interface to public zone"
   tags: nat-firewall-public
-  ansible.posix.firewalld:
-    permanent: yes
-    immediate: yes
-    state: disabled
-    interface: "{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }}"
-    zone: public
+  ansible.builtin.lineinfile:
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',ansible_host) | map(attribute='key') | first }}"
+    line: "ZONE=public"
 
 - name: "Move internal interface to internal zone"
   tags: nat-firewall-internal
-  ansible.posix.firewalld:
-    permanent: yes
-    immediate: yes
-    state: enabled
-    interface: "{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }}"
-    zone: internal
+  ansible.builtin.lineinfile:
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }}"
+    line: "ZONE=internal"
 
 - name: "Allow masquerade on public interface"
   tags: nat-firewall-masquerade
