@@ -1,0 +1,10 @@
+---
+- name: "Reload Network Manager"
+  ansible.builtin.command: "nmcli c reload"
+  listen: "Reload and Restart Network Manager"
+
+- name: "Restart Network Manager"
+  ansible.builtin.service:
+    name: "NetworkManager"
+    state: restarted
+  listen: "Reload and Restart Network Manager"
