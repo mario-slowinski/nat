@@ -1,12 +1,12 @@
+---
 - name: "Configure firewall"
   tags:
-  - nat
-  - nat-firewall
-  import_tasks: firewall.yml
+    - nat
+    - nat.firewall
+  import_tasks: firewall.yaml
 
 - name: "Configure ip forwarding"
   tags:
-  - nat
-  - nat-routing
-  import_tasks: routing.yml
-
+    - nat
+    - nat.routing
+  import_tasks: routing.yaml
