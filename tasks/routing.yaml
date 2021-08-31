@@ -1,12 +1,17 @@
+---
 - name: "Allow ip forwarding"
-  tags: nat-routing-forwarding
+  tags: nat.routing.forwarding
   sysctl:
     name: net.ipv4.ip_forward
     value: '1'
 
-- name: "Disable default routing for internal interface"
-  tags: nat-routing-internal
+- name: "Disable default routing for interface"
+  tags: nat.routing.internal
   ansible.builtin.lineinfile:
-    path: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }}"
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{ item['interface'] }}"
+    regexp: "^DEFROUTE=.*"
     line: "DEFROUTE=no"
-
+  loop: "{{ nat_interfaces | rejectattr('zone','eq','public') }}"
+  loop_control:
+    label: "{{ item['interface'] }}"
+  notify: "Reload and Restart Network Manager"
