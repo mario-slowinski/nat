@@ -1,0 +1,18 @@
+---
+nat_interfaces:
+  - zone: "public"
+    interface: >-
+      {{- ansible_facts
+      | dict2items
+      | selectattr('value.ipv4','defined')
+      | selectattr('value.ipv4.address','eq',ansible_host)
+      | map(attribute='key')
+      | first }}
+  - zone: "internal"
+    interface: >-
+      {{- ansible_facts
+      | dict2items
+      | selectattr('value.ipv4','defined')
+      | selectattr('value.ipv4.address','eq',internal_ip)
+      | map(attribute='key')
+      | first }}

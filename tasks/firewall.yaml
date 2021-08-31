@@ -1,21 +1,20 @@
-- name: "Move public interface to public zone"
-  tags: nat-firewall-public
+---
+- name: "Move interface to zone"
+  tags: nat.firewall.zone
   ansible.builtin.lineinfile:
-    path: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',ansible_host) | map(attribute='key') | first }}"
-    line: "ZONE=public"
-
-- name: "Move internal interface to internal zone"
-  tags: nat-firewall-internal
-  ansible.builtin.lineinfile:
-    path: "/etc/sysconfig/network-scripts/ifcfg-{{ ansible_facts | dict2items | selectattr('value.ipv4', 'defined') | selectattr('value.ipv4.address','eq',internal) | map(attribute='key') | first }}"
-    line: "ZONE=internal"
+    path: "/etc/sysconfig/network-scripts/ifcfg-{{ item['interface'] }}"
+    regexp: "^ZONE=.*"
+    line: "ZONE={{ item['zone'] }}"
+  loop: "{{ nat_interfaces }}"
+  loop_control:
+    label: "{{ item['interface'] }} zone={{ item['zone'] }}"
+  notify: "Reload and Restart Network Manager"
 
 - name: "Allow masquerade on public interface"
-  tags: nat-firewall-masquerade
+  tags: nat.firewall.masquerade
   ansible.posix.firewalld:
-    permanent: yes
-    immediate: yes
+    permanent: true
+    immediate: true
     state: enabled
     zone: public
     masquerade: "yes"
-
